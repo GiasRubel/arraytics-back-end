@@ -1,0 +1,40 @@
+version: '3'
+
+services:
+    app:
+        build:
+            context: .
+        image: arraytics-app
+        container_name: arraytics-app
+        restart: unless-stopped
+        working_dir: /app
+        ports:
+            - "8000:8000" # Adjust the port if needed
+        environment:
+            - "DB_CONNECTION=mysql"
+            - "DB_HOST=db"
+            - "DB_PORT=3306"
+            - "DB_DATABASE=arraytic"
+            - "DB_USERNAME=root"
+            - "DB_PASSWORD=my-secret-root-password"
+        volumes:
+            - .:/app
+        depends_on:
+            - db
+
+    db:
+        image: mysql:latest
+        container_name: arraytics-mysql
+        restart: unless-stopped
+        environment:
+            - "MYSQL_DATABASE=arraytic"
+            - "MYSQL_ROOT_PASSWORD=my-secret-root-password"
+            - "MYSQL_ALLOW_EMPTY_PASSWORD="
+            - "MYSQL_RANDOM_ROOT_PASSWORD="
+        ports:
+            - "3307:3306" # Mapping host port 3307 to container port 3306
+        volumes:
+            - mysql_data:/var/lib/mysql
+
+volumes:
+    mysql_data:
