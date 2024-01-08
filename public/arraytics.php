@@ -4,7 +4,7 @@ class Car
 {
     public string $name;
 
-//Add a name parameter to constructor
+    //Add a name parameter to constructor
     function __construct($name)
     {
         $this->name = $name;

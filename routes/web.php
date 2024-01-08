@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AddressBookController;
+use App\Http\Controllers\Quiz\QuizController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,7 +15,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-
+Route::get('/quizzes', [QuizController::class, 'index'])->name('quizzes.index');
+Route::get('/quizzes/create', [QuizController::class, 'create'])->name('quizzes.create');
+Route::post('/quizzes', [QuizController::class, 'store'])->name('quizzes.store');
 
 Route::get('/', function () {
     return view('welcome');
