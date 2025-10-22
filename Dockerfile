@@ -1,35 +1,33 @@
-# Use the official PHP image with version 8.2.6 as the base image
-FROM php:8.2.6-fpm
+# Use the official PHP image with FPM and Nginx
+FROM php:8.2-fpm
 
-# Install required dependencies
+# Install system dependencies and PHP extensions
 RUN apt-get update && apt-get install -y \
-    git \
-    unzip \
-    libzip-dev \
-    libonig-dev \
-    libxml2-dev
+    git curl zip unzip libpng-dev libonig-dev libxml2-dev libzip-dev \
+    libpq-dev libjpeg-dev libfreetype6-dev libmcrypt-dev libssl-dev \
+    libcurl4-openssl-dev libicu-dev libxslt1-dev nginx \
+    && docker-php-ext-install pdo pdo_mysql mbstring zip exif pcntl bcmath gd
 
-# Install PHP extensions
-RUN docker-php-ext-install pdo_mysql mbstring zip exif pcntl bcmath opcache
+# Install Composer globally
+RUN curl -sS https://getcomposer.org/installer | php \
+    && mv composer.phar /usr/local/bin/composer
 
-# Install Composer globally with version 2.6.5
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer --version=2.6.5
+# Set working directory
+WORKDIR /var/www
 
-# Set the working directory to /app
-WORKDIR /app
-
-# Copy the composer.json and composer.lock
-COPY composer.json composer.lock ./
-
-# Install project dependencies
-RUN composer install --no-scripts --no-autoloader
-
-# Copy the application files to the container
+# Copy Laravel project files
 COPY . .
 
-# Generate the optimized autoloader and clear the cache
-RUN composer dump-autoload --optimize && php artisan cache:clear
+# Install Composer dependencies
+RUN composer install --optimize-autoloader --no-dev
 
-# Expose port 9000 and start PHP-FPM
+# Set permissions for Laravel directories
+RUN chown -R www-data:www-data /var/www \
+    && chmod -R 775 storage bootstrap/cache
+
+# Expose PHP-FPM and Nginx ports
 EXPOSE 9000
-CMD ["php-fpm"]
+EXPOSE 80
+
+# Start PHP-FPM and Nginx in the foreground
+CMD service nginx start && php-fpm -F
