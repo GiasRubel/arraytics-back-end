@@ -1,11 +1,11 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: mysql-service
+  name: laravel-service
 spec:
   selector:
-    app: mysql
+    app: laravel
   ports:
     - protocol: TCP
-      port: 3306
-      targetPort: 3306
+      port: 9000
+      targetPort: 9000
